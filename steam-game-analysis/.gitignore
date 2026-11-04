@@ -1,0 +1,60 @@
+
+# ==================================
+# Python
+# ==================================
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# ==================================
+# Virtual Environments
+# ==================================
+.venv/
+venv/
+env/
+
+# ==================================
+# Environment Variables / API Keys
+# ==================================
+.env
+.env.*
+!.env.example
+
+# ==================================
+# Raw API Data
+# ==================================
+data/raw/
+data/steam_games_raw.csv
+data/steam_genres.csv
+data/steam_tags.csv
+data/analysis/
+
+# ==================================
+# Cleaned Dataset
+# ==================================
+# Keep the cleaned dataset local until
+# redistribution permissions are verified.
+data/steam_games.csv
+
+# ==================================
+# Operating System Files
+# ==================================
+.DS_Store
+Thumbs.db
+
+# ==================================
+# IDE Files
+# ==================================
+.vscode/
+.idea/
+
+# ==================================
+# Temporary Files
+# ==================================
+*.log
+*.tmp
+
+# Additional locally collected and curated data
+data/steam_release_dates.csv
+data/steam_publishers.csv
