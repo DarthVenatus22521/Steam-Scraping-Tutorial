@@ -1,0 +1,15 @@
+
+FILE HASHES
+------------------------------------------------------------
+steam_games.csv: 2eb6f7910fc0842f75868be71f585c8d528f485359eeda6b33220edd4bb02721
+steam_genres.csv: cd02aa56162cd8216bd08510aaab8cec6906c0fad3cf05b98dbd2ac2de48fa15
+steam_tags.csv: 629ef0691e42f2cae6e86984187200bd90c64610a68d19b1ce95a704de31689e
+steam_publishers.csv: fcd96305d7b5d91972c3f7f84e637bcac85f9eec98635e5b4ce3a75cfd05255c
+steam_release_dates.csv: f0cb65d60f2be7f33ef05a575276f9c2d3644d983ef24946b35d6775a473a6b7
+genre_price_summary.csv: 843b2096b25341f5f5aa1f941d4b38a320204aa290a074063f532465f3f8fb1d
+price_summary.csv: d94c79dec51fb3a298c64cf5629cff5c57a8298a970726a60de9b783c8d647d1
+publisher_summary.csv: d2453d7b6cd09c0a654a3f2c79f39b641ba1b4f68f798b3d722570c20088dfe0
+release_year_summary.csv: 22d8f260315c9b3165a3e41335380e1e94941aabf495b432c4ff964489843aef
+sensitivity_price_summary.csv: 85268ce8dcb793574c392b26027d001e65136cca387bdaa33bcea26956b1d575
+sensitivity_summary.csv: f5a8e09f85fee18199c57fd2e44974de245fc27b8eb7687609e2741ac170e921
+tag_summary.csv: 9ae778daeb7ae56d640b88f255bd074abf81ed04635950ebb56eb729b8e8da19
