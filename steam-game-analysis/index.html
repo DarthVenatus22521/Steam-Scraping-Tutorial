@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A data acquisition and exploratory analysis project examining Steam game prices, genres, release dates, and player ratings across 4,855 games.">
+  <meta name="theme-color" content="#102637">
+  <title>Are Expensive Steam Games Actually Better? | Steam Data Analysis</title>
+  <style>
+    :root { --ink:#182d3a; --muted:#536675; --dark:#102637; --accent:#e99a65; --teal:#168c91; --paper:#fbfaf7; --line:#dce3e5; --surface:#ffffff; --content:800px; }
+    *, *::before, *::after { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:17px/1.78 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+    a { color:#087a80; text-decoration-thickness:1px; text-underline-offset:3px; }
+    a:hover { color:#b65e31; }
+    a:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+    .skip { position:absolute; left:-9999px; top:8px; background:white; padding:8px 12px; z-index:10; }
+    .skip:focus { left:10px; }
+    .hero { color:#fff; background:radial-gradient(ellipse at 92% 8%,#265a64 0%,transparent 40%), linear-gradient(135deg,#102637,#193f4a); padding:28px 24px 78px; }
+    .nav { max-width:1080px; margin:0 auto 78px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; }
+    .brand { color:#fff; font-weight:800; letter-spacing:.14em; font-size:.78rem; text-decoration:none; text-transform:uppercase; }
+    .nav-links { display:flex; flex-wrap:wrap; gap:18px; }
+    .nav-links a { color:#d8edf0; font-size:.84rem; text-decoration:none; }
+    .nav-links a:hover { color:#fff; text-decoration:underline; }
+    .hero-inner { max-width:920px; margin:0 auto; }
+    .eyebrow { color:#ffbf91; font-size:.79rem; text-transform:uppercase; letter-spacing:.18em; font-weight:800; }
+    h1 { font-family:Georgia,"Times New Roman",serif; font-size:clamp(2.7rem,6.7vw,5.1rem); line-height:1.1; letter-spacing:-.04em; font-weight:700; max-width:830px; margin:22px 0 22px; }
+    .dek { font-size:clamp(1.1rem,2vw,1.35rem); color:#d5e7e9; max-width:730px; line-height:1.65; }
+    .meta { display:flex; flex-wrap:wrap; gap:10px 24px; margin-top:31px; font-size:.84rem; color:#c4d8dc; }
+    .meta span::before { content:"•"; color:#f7ac76; margin-right:10px; }
+    .meta span:first-child::before { content:""; margin:0; }
+    .stats { max-width:980px; margin:-39px auto 0; position:relative; display:grid; grid-template-columns:repeat(3,1fr); gap:1px; padding:0 22px; }
+    .stat { padding:24px; background:var(--surface); box-shadow:0 12px 32px rgba(9,30,43,.07); border:1px solid #e5e9e9; }
+    .stat:first-child { border-radius:14px 0 0 14px; } .stat:last-child { border-radius:0 14px 14px 0; }
+    .stat strong { display:block; font:700 clamp(1.5rem,4vw,2.4rem)/1.2 Georgia,serif; color:#153c4b; }
+    .stat span { display:block; margin-top:7px; color:var(--muted); font-size:.79rem; line-height:1.5; }
+    main { padding:36px 22px 62px; }
+    .article { max-width:var(--content); margin:0 auto; }
+    .section { margin-top:66px; scroll-margin-top:24px; }
+    h2 { font:700 clamp(1.8rem,4vw,2.45rem)/1.18 Georgia,"Times New Roman",serif; letter-spacing:-.025em; margin:0 0 22px; }
+    h3 { font-size:1.14rem; line-height:1.4; margin:26px 0 10px; }
+    p { margin:0 0 20px; } p:last-child { margin-bottom:0; }
+    .section-label { color:#a9633e; font-size:.74rem; font-weight:800; letter-spacing:.17em; text-transform:uppercase; display:block; margin-bottom:14px; }
+    .takeaway { border-left:4px solid var(--teal); background:#eaf5f2; margin:28px 0; padding:18px 22px; border-radius:0 9px 9px 0; }
+    .takeaway strong { display:block; font-size:.84rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:5px; color:#075d63; }
+    .takeaway p { margin:0; line-height:1.65; }
+    figure { margin:31px -55px 30px; }
+    .figure-wrap { background:white; padding:14px; border:1px solid var(--line); border-radius:12px; box-shadow:0 8px 28px rgba(22,40,50,.055); }
+    figure img { display:block; width:100%; height:auto; border-radius:4px; }
+    figcaption { color:var(--muted); font-size:.83rem; line-height:1.6; margin-top:10px; padding:0 4px; }
+    .number { font-variant-numeric:tabular-nums; }
+    .method-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:22px 0; }
+    .method-card { border:1px solid var(--line); border-radius:10px; padding:19px; background:#fff; }
+    .method-card h3 { margin:0 0 8px; font-size:1rem; } .method-card p { font-size:.88rem; line-height:1.65; color:var(--muted); }
+    .divider { border:0; border-top:1px solid var(--line); margin:58px 0 0; }
+    .fine-print { font-size:.88rem; color:var(--muted); }
+    .footer { background:var(--dark); color:#c9dcdd; padding:34px 22px 42px; }
+    .footer-inner { max-width:var(--content); margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; font-size:.86rem; }
+    .footer a { color:#f0c19d; }
+    @media (max-width:930px) { figure { margin-left:0; margin-right:0; } }
+    @media (max-width:620px) { .hero { padding:22px 19px 65px; } .nav { margin-bottom:50px; } .stats { grid-template-columns:1fr; gap:8px; margin-top:-31px; } .stat,.stat:first-child,.stat:last-child { border-radius:10px; padding:18px 21px; } main { padding:18px 19px 42px; } .section { margin-top:49px; } .method-grid { grid-template-columns:1fr; } .figure-wrap { padding:5px; } figcaption { font-size:.79rem; } body { font-size:16px; } }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#article">Skip to article</a>
+  <header class="hero">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#top">Steam / Data Story</a>
+      <div class="nav-links">
+        <a href="#methodology">The data</a>
+        <a href="#findings">Findings</a>
+        <a href="#limitations">Limitations</a>
+        <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY">Source code ↗</a>
+      </div>
+    </nav>
+    <div class="hero-inner" id="top">
+      <div class="eyebrow">STAT 386 · Data acquisition &amp; analysis</div>
+      <h1>Are Expensive Steam Games Actually Better?</h1>
+      <p class="dek">We expect to get what we pay for. But when it comes to PC games, do higher prices actually come with better player reviews?</p>
+      <div class="meta"><span>Fall 2026</span><span>Steam Spy + The Game Census</span><span>BYU STAT 386</span></div>
+    </div>
+  </header>
+
+  <div class="stats" aria-label="Project statistics">
+    <div class="stat"><strong>4,855</strong><span>Games in the cleaned dataset</span></div>
+    <div class="stat"><strong>0.021</strong><span>Price–rating Pearson correlation among paid games</span></div>
+    <div class="stat"><strong>89.8%</strong><span>Of cleaned games matched to release dates</span></div>
+  </div>
+
+  <main id="article">
+    <article class="article">
+      <section class="section" id="introduction">
+        <span class="section-label">01 / The question</span>
+        <h2>Does a bigger price tag mean a better game?</h2>
+        <p>Gaming can be expensive. A new release might cost more than $60, while another game is free or costs less than $10. It is tempting to assume that more expensive games offer a better experience. I wanted to test that assumption using something players leave behind in enormous quantities: Steam reviews.</p>
+        <p>Rather than trying to define game quality objectively, I measured <strong>player reception</strong> as the percentage of recorded reviews marked positive. I then compared that percentage with listed game prices, genres, community tags, publishers, and release years.</p>
+      </section>
+
+      <section class="section" id="methodology">
+        <span class="section-label">02 / Data acquisition</span>
+        <h2>Building the dataset</h2>
+        <p>I wrote a Python collection script that queried the <a href="https://steamspy.com/api.php">Steam Spy API</a> for popular Steam applications and then requested detailed information about individual games. The initial collection contained <strong>4,996 records</strong>, including game names, prices, review counts, genres, and community tags. Requests were rate-limited, retried when appropriate, and cached as JSON so I would not repeatedly ask the API for the same information.</p>
+        <p>I added release dates from <a href="https://thegamecensus.com/data">The Game Census</a>, using a downloadable index rather than thousands of individual requests. The two sources were joined on Steam App ID. After removing duplicates, excluding incomplete price or review data, and requiring at least 50 reviews, <strong>4,855 games</strong> remained; 4,358 had usable release dates.</p>
+        <div class="method-grid">
+          <div class="method-card"><h3>From raw fields to features</h3><p>Prices were converted from cents into US dollars. For each game, I calculated <code>positive / (positive + negative) × 100</code> to obtain a positive-review percentage.</p></div>
+          <div class="method-card"><h3>Handling many-to-many data</h3><p>Genres, tags, and publishers were expanded into separate game-level relationship tables. This preserved multi-genre games without counting each game more than once in the core dataset.</p></div>
+        </div>
+        <p class="fine-print">Price categories use the API's <strong>original listed price</strong>, not necessarily what reviewers paid. Games with a recorded original price of zero are labeled “Free” in the plots.</p>
+      </section>
+
+      <section class="section" id="findings">
+        <span class="section-label">03 / Finding one</span>
+        <h2>The middle of the price range stands out</h2>
+        <p>At first glance, there is no simple “more expensive means better” pattern. Among <strong>3,779 paid games</strong>, Pearson's correlation between original listed price and positive-review percentage was just <strong>0.021</strong>—essentially no linear association in this sample.</p>
+        <p>Grouping games into price categories reveals more detail. Games priced from <strong>$10.01 to $20</strong> had the highest median positive-review percentage, <strong>88.54%</strong>. Games over $40 had a lower median of <strong>82.99%</strong>, while free games had a median of <strong>78.22%</strong>.</p>
+        <figure>
+          <div class="figure-wrap"><img src="figures/ratings_by_price_category.png" alt="Six colored boxplots of Steam positive-review percentages by original price category. The $10.01 to $20 group has the highest median." loading="lazy" width="1559" height="955"></div>
+          <figcaption><strong>Figure 1.</strong> Review distributions by original price category. Boxes represent the middle half of games in each group; horizontal lines mark medians.</figcaption>
+        </figure>
+        <div class="takeaway"><strong>Key finding</strong><p>The best-reviewed price bracket in this dataset was not the most expensive one. But the pattern is descriptive, not proof that charging $10–$20 makes a game better.</p></div>
+      </section>
+
+      <section class="section">
+        <span class="section-label">04 / Finding two</span>
+        <h2>Genre tells another part of the story</h2>
+        <p>Price is only one way games differ. The genre boxplots show noticeably different review distributions: Indie, Casual, and Adventure games have relatively high medians, while Free To Play and Massively Multiplayer games have lower medians in this sample. This does not mean every game in a genre follows the same pattern; there is considerable variation within each group.</p>
+        <figure>
+          <div class="figure-wrap"><img src="figures/ratings_by_genre.png" alt="Horizontal boxplots comparing positive-review percentages across ten common Steam genres, with lower medians for Massively Multiplayer and Free To Play." loading="lazy" width="1559" height="955"></div>
+          <figcaption><strong>Figure 2.</strong> Player-rating distributions for ten common genre labels. A game can appear in multiple genres.</figcaption>
+        </figure>
+        <p>The next question is whether the mid-price advantage is specific to certain genres. The heatmap compares median ratings within genre–price combinations, excluding groups with fewer than 30 games so that very small groups do not dominate the interpretation.</p>
+        <figure>
+          <div class="figure-wrap"><img src="figures/genre_price_heatmap.png" alt="Blue-to-red heatmap showing median Steam positive-review percentages by genre and original game-price category; higher values cluster around $10 to $20, with sparse cells left blank." loading="lazy" width="1576" height="960"></div>
+          <figcaption><strong>Figure 3.</strong> Median positive reviews by genre and price bracket. Gray cells indicate combinations with fewer than 30 games; genre categories overlap.</figcaption>
+        </figure>
+        <p>The $10–$20 group performs well across Action, Adventure, Indie, RPG, and Strategy. Simulation is an exception: its $5.01–$10 group has a slightly higher median. These differences suggest that a single price comparison can conceal meaningful variation by game type.</p>
+      </section>
+
+      <section class="section">
+        <span class="section-label">05 / Finding three</span>
+        <h2>Release year adds context</h2>
+        <p>Games released in different years also show different review patterns. Median positive-review percentages dip for releases around 2014–2017, then rise for several later cohorts. For example, the 2015 cohort has a median of <strong>82.03%</strong>, compared with <strong>87.18%</strong> for games released in 2020.</p>
+        <figure>
+          <div class="figure-wrap"><img src="figures/ratings_by_release_year.png" alt="Line chart of median positive-review percentage by Steam game release year, dipping around 2015 and rising after 2017." loading="lazy" width="1600" height="900"></div>
+          <figcaption><strong>Figure 4.</strong> Median rating by release year for cohorts with at least 20 games. Reviews are cumulative snapshots, not reviews collected in the release year.</figcaption>
+        </figure>
+        <p>That distinction matters. This figure compares groups of games released in different years; it cannot tell us whether Steam players became happier or less happy over time.</p>
+      </section>
+
+      <section class="section" id="limitations">
+        <span class="section-label">06 / Interpretation &amp; ethics</span>
+        <h2>What these results cannot tell us</h2>
+        <p>There are several reasons to be cautious. Steam Spy's popular-game listings are <strong>not a random sample</strong> of everything on Steam. Review percentages reflect the people who choose to leave reviews, not everyone who plays a game. Original listed prices are not necessarily transaction prices, and genre and tag categories overlap. Release dates were missing for about 10% of the cleaned sample.</p>
+        <p>The conclusion also depends on filtering decisions. When I increased the minimum review threshold from 50 to 2,000, the price–rating correlation among paid games shifted from <strong>0.021</strong> to <strong>−0.196</strong>. That sensitivity is itself a useful finding: which games enter the analysis changes the apparent relationship.</p>
+        <p>For responsible data collection, I cached API responses, respected request pacing, and kept acquisition separate from the offline analysis. I did not publish raw collected datasets in the code repository; the scripts document how to reconstruct them from their sources. The Game Census data is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, with attribution to <a href="https://thegamecensus.com/data">The Game Census</a>.</p>
+        <div class="takeaway"><strong>Bottom line</strong><p>More expensive Steam games are not consistently better reviewed. Mid-priced games look strong in this sample, but genre, release cohort, and sampling choices all complicate the picture. Price alone is a poor shortcut for player reception.</p></div>
+      </section>
+
+      <hr class="divider">
+      <section class="section" id="code">
+        <span class="section-label">Explore the project</span>
+        <h2>From API calls to reproducible charts</h2>
+        <p>The project includes separate Python scripts for collection, cleaning, exploratory analysis, and visualization. The analysis runs offline once the source data has been collected; repeated runs with unchanged inputs produced matching SHA-256 hashes for the exported CSV files.</p>
+        <p><a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY">Browse the Python code and README on GitHub →</a></p>
+      </section>
+    </article>
+  </main>
+  <footer class="footer"><div class="footer-inner"><span>STAT 386 · Brigham Young University · Fall 2026</span><span>Data: <a href="https://steamspy.com/api.php">Steam Spy</a> · <a href="https://thegamecensus.com/data">The Game Census</a></span></div></footer>
+</body>
+</html>
