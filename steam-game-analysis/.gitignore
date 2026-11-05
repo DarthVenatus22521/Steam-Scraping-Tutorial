@@ -58,3 +58,6 @@ Thumbs.db
 # Additional locally collected and curated data
 data/steam_release_dates.csv
 data/steam_publishers.csv
+
+# Temporary reproducibility test outputs
+hashes_*.txt

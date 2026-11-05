@@ -3,6 +3,8 @@
 import matplotlib
 matplotlib.use("Agg")
 
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+
 from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -88,7 +90,9 @@ def plot_tag_counts(tags_df, figures_dir: Path):
     sns.barplot(
         x=top_tags.values,
         y=top_tags.index,
-        color="steelblue"
+        color="#4361EE",
+        edgecolor="#293B86",
+        linewidth=0.6
     )
 
     plt.title("15 Most Common Steam Community Tags")
@@ -102,41 +106,88 @@ def plot_tag_counts(tags_df, figures_dir: Path):
     plt.close()
 
 
+
 def plot_price_categories(df, price_labels, figures_dir: Path):
-    """Boxplot of positive ratings for original-price categories."""
+    """Boxplot with a distinct color for each price category."""
     FIGURES = Path(figures_dir)
+
+    price_palette = {
+        "Free": "#6C757D",
+        "$0.01–$5": "#2A9D8F",
+        "$5.01–$10": "#4CC9F0",
+        "$10.01–$20": "#F4A261",
+        "$20.01–$40": "#E76F51",
+        "Over $40": "#9C6644"
+    }
+
     plt.figure(figsize=(11, 7))
 
     sns.boxplot(
         data=df,
         x="price_category",
         y="positive_pct",
-        order=price_labels
+        hue="price_category",
+        order=price_labels,
+        hue_order=price_labels,
+        palette=price_palette,
+        dodge=False,
+        legend=False,
+        linewidth=1.2,
+        flierprops={
+            "marker": "o",
+            "markersize": 4,
+            "alpha": 0.4,
+            "markeredgecolor": "#555555"
+        }
     )
 
-    plt.title("Steam Game Ratings by Price Category")
-    plt.xlabel("Original Game Price")
+    plt.title(
+        "Steam Game Ratings by Price Category",
+        fontsize=16,
+        fontweight="bold",
+        pad=15
+    )
+    plt.xlabel("Original Game Price (USD)")
     plt.ylabel("Positive Reviews (%)")
 
-    plt.xticks(rotation=20)
+    # Display dollar signs literally
+    display_labels = [
+        "Free",
+        r"\$0.01–\$5",
+        r"\$5.01–\$10",
+        r"\$10.01–\$20",
+        r"\$20.01–\$40",
+        "Over \$40"
+    ]
+
+    ax = plt.gca()
+    ax.set_xticklabels(display_labels, rotation=20, ha="right")
+    plt.ylim(10, 101)
     plt.tight_layout()
 
     plt.savefig(
         FIGURES / "ratings_by_price_category.png",
-        dpi=300
+        dpi=300,
+        bbox_inches="tight"
     )
 
     plt.close()
 
 
-def plot_genre_price_heatmap(genre_price_summary, price_labels, figures_dir: Path):
-    """Show medians only where genre-price groups have at least 30 games."""
+
+
+def plot_genre_price_heatmap(
+    genre_price_summary,
+    price_labels,
+    figures_dir: Path
+):
+    """Heatmap with a 30-game minimum and blue-neutral-red colors."""
     FIGURES = Path(figures_dir)
-    # Require at least 30 games per genre-price combination
     MIN_GAMES = 30
 
     filtered_summary = genre_price_summary.copy()
 
+    # Hide groups containing fewer than 30 games
     filtered_summary.loc[
         filtered_summary["games"] < MIN_GAMES,
         "median_rating"
@@ -148,47 +199,78 @@ def plot_genre_price_heatmap(genre_price_summary, price_labels, figures_dir: Pat
         values="median_rating"
     )
 
-    # Preserve original price category ordering
+    # Preserve the original category order
     heatmap_data = heatmap_data.reindex(
         columns=price_labels
     )
 
-    # Remove genres with no qualifying cells
+    # Remove genres with no qualifying groups
     heatmap_data = heatmap_data.dropna(how="all")
 
-    # Display missing cells as blank
     plt.figure(figsize=(12, 7))
 
-    sns.heatmap(
+    ax = sns.heatmap(
         heatmap_data,
         annot=True,
         fmt=".1f",
-        cmap="YlGnBu",
-        vmin=50,
-        vmax=100,
+        cmap="RdBu_r",
+        center=82.5,
+        vmin=70,
+        vmax=92,
         mask=heatmap_data.isna(),
+        linewidths=1,
+        linecolor="white",
+        annot_kws={
+            "fontsize": 10,
+            "fontweight": "bold",
+            "color": "black"
+        },
         cbar_kws={
             "label": "Median Positive Reviews (%)"
         }
     )
 
+    # Make blank cells visibly intentional
+    ax.set_facecolor("#F2F2F2")
+
+    ax.grid(False)
+
     plt.title(
         "Steam Ratings by Genre and Price Category\n"
-        "(Minimum 30 Games per Group)"
+        "(Blank Cells Indicate Fewer Than 30 Games)",
+        fontsize=15,
+        fontweight="bold",
+        pad=15
     )
 
     plt.xlabel("Original Game Price")
     plt.ylabel("Genre")
 
+    # Force labels to display clearly
+    
+   
+    # Display dollar signs literally instead of as math formatting
+    display_labels = [
+        "Free",
+        r"\$0.01–\$5",
+        r"\$5.01–\$10",
+        r"\$10.01–\$20",
+        r"\$20.01–\$40",
+        "Over $40"
+    ]
+
+    ax.set_xticklabels(display_labels, rotation=0)
+    ax.tick_params(axis="y", labelrotation=0)
+
     plt.tight_layout()
 
     plt.savefig(
         FIGURES / "genre_price_heatmap.png",
-        dpi=300
+        dpi=300,
+        bbox_inches="tight"
     )
 
     plt.close()
-
 
 def plot_release_year(year_plot, figures_dir: Path):
     """Plot rating by release year for years with at least 20 sampled games."""
@@ -206,6 +288,13 @@ def plot_release_year(year_plot, figures_dir: Path):
         plt.title("Steam Game Ratings by Release Year")
         plt.xlabel("Release Year")
         plt.ylabel("Median Positive Reviews (%)")
+
+        
+        # Display whole-number years every 2 years
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(MultipleLocator(2))
+        ax.xaxis.set_major_formatter(FormatStrFormatter("%d"))
+
 
         plt.tight_layout()
         plt.savefig(
