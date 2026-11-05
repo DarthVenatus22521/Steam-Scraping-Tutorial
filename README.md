@@ -154,10 +154,9 @@ steam-game-analysis/
 
 ```bash
 git clone https://github.com/DarthVenatus22521/Steam-Scraping-Tutorial.git
-cd steam-game-analysis
+cd Steam-Scraping-Tutorial
+uv sync
 ```
-
-Replace the placeholder URL with this repository's actual GitHub address.
 
 ### 2. Install dependencies
 
