@@ -111,6 +111,7 @@ def plot_price_categories(df, price_labels, figures_dir: Path):
     """Boxplot with a distinct color for each price category."""
     FIGURES = Path(figures_dir)
 
+    
     price_palette = {
         "Free": "#6C757D",
         "$0.01–$5": "#2A9D8F",
